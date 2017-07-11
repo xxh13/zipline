@@ -229,6 +229,7 @@ class AlgorithmSimulator(object):
                     if emission_rate == 'daily':
                         handle_benchmark(normalize_date(dt))
                     execute_order_cancellation_policy()
+                    algo.validate_account_controls()
 
                     yield self._get_daily_message(dt, algo, algo.perf_tracker)
                 elif action == BEFORE_TRADING_START_BAR:

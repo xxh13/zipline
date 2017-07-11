@@ -23,7 +23,7 @@ from copy import deepcopy
 import logbook
 import toolz
 from logbook import TestHandler, WARNING
-from mock import MagicMock
+from mock import MagicMock, patch
 from nose_parameterized import parameterized
 from six import iteritems, itervalues, string_types
 from six.moves import range
@@ -3525,6 +3525,24 @@ class TestAccountControls(WithDataPortal, WithSimParams, ZiplineTestCase):
         algo = SetMaxLeverageAlgorithm(1,  sim_params=self.sim_params,
                                        env=self.env)
         self.check_algo_succeeds(algo, handle_data)
+
+    def test_end_of_day_leverage_enforced(self):
+        # Patch handle data so that it does not perform account validation.
+        def mocked_handle_data(self, data):
+            if self._handle_data:
+                self._handle_data(self, data)
+
+        with patch.object(TradingAlgorithm, 'handle_data', mocked_handle_data):
+            def handle_data(algo, data):
+                algo.order(algo.sid(self.sidint), 1)
+
+            algo = SetMaxLeverageAlgorithm(
+                max_leverage=0, sim_params=self.sim_params, env=self.env,
+            )
+
+            # The algo should still fail the account validation because we are
+            # checking it at the end of the day.
+            self.check_algo_fails(algo, handle_data)
 
 
 # FIXME re-implement this testcase in q2
