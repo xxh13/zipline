@@ -213,7 +213,7 @@ class VolumeRollFinder(RollFinder):
         )
         for session in sessions:
             if session < back_contract.start_date:
-                return front
+                continue
             front_vol = get_value(front, session, 'volume')
             back_vol = get_value(back, session, 'volume')
             if back_vol > front_vol:
