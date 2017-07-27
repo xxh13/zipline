@@ -212,6 +212,8 @@ class VolumeRollFinder(RollFinder):
             tc.minute_to_session_label(gap_end),
         )
         for session in sessions:
+            if session < back_contract.start_date:
+                return front
             front_vol = get_value(front, session, 'volume')
             back_vol = get_value(back, session, 'volume')
             if back_vol > front_vol:
